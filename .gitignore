@@ -1,12 +1,152 @@
-__pycache__/
-*.py[cod]
-.venv/
-node_modules/
-dist/
+# ==============================================================================
+# Git Ignore - Local SOC Incident-Response Copilot
+# ==============================================================================
 
+# ------------------------------------------------------------------------------
+# Environment Variables & Secrets (Keep .env.example tracked)
+# ------------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+*.crt
+!.env.example
+
+# ------------------------------------------------------------------------------
+# Local Databases & Runtime Data
+# ------------------------------------------------------------------------------
 data/
 *.db
 *.db-shm
 *.db-wal
+*.sqlite
+*.sqlite3
+
+# ------------------------------------------------------------------------------
+# Python & Virtual Environments
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Testing & Coverage
 .pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.ruff_cache/
+.mypy_cache/
+
+# ------------------------------------------------------------------------------
+# Node & Frontend Build Artifacts (if any tools are used locally)
+# ------------------------------------------------------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.npm/
+.yarn/
+.pnp
+.pnp.js
+.vite/
+.parcel-cache/
+
+# ------------------------------------------------------------------------------
+# Local LLM Models, Checkpoints & Large Binaries
+# ------------------------------------------------------------------------------
+*.gguf
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx
+models/
+
+# ------------------------------------------------------------------------------
+# Archive Files & Package Bundles
+# ------------------------------------------------------------------------------
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# ------------------------------------------------------------------------------
+# Logs & Temporary Files
+# ------------------------------------------------------------------------------
+*.log
+logs/
+*.tmp
+*.temp
+scratch/
+scratch_test.js
+dom_dump.html
+
+# ------------------------------------------------------------------------------
+# IDE & Operating System Artifacts
+# ------------------------------------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Editors
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# AI & Internal Tool Cache
 .superpowers/
+.gemini/

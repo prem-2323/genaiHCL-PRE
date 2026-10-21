@@ -1,0 +1,143 @@
+/* ==========================================================================
+   Responsive Breakpoints & Media Queries
+   Breakpoints: 375px, 768px, 1024px, 1440px
+   ========================================================================== */
+
+/* Large Desktop / Standard (1440px) */
+@media (max-width: 1440px) {
+  .main-content {
+    max-width: 100%;
+  }
+}
+
+/* Medium Desktop / Small Screens (1024px) */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 220px;
+  }
+  
+  .detail-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+  
+  .disposition-panel {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tablet & Mobile (< 768px) */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 260px;
+    box-shadow: var(--shadow-xl);
+  }
+  
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  
+  .workspace {
+    margin-left: 0 !important;
+  }
+  
+  .mobile-menu-btn {
+    display: inline-flex;
+  }
+  
+  .sidebar-toggle-btn {
+    display: none;
+  }
+  
+  .app-header {
+    padding: 0 var(--space-4);
+  }
+  
+  .systembar {
+    padding: 0 var(--space-4);
+    font-size: 11px;
+  }
+  
+  .systembar-right span:not(.systembar-badge) {
+    display: none;
+  }
+  
+  .systembar-divider {
+    display: none;
+  }
+  
+  .header-search {
+    width: 150px;
+  }
+  
+  .main-content {
+    padding: var(--space-4);
+  }
+  
+  .stats-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .filters-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-input {
+    width: 100%;
+  }
+  
+  .page-heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  
+  .heading-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  
+  .toast-container {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+  }
+  
+  .toast {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+/* Mobile Small (375px) */
+@media (max-width: 375px) {
+  .stats-strip {
+    grid-template-columns: 1fr;
+  }
+  
+  .header-search {
+    display: none;
+  }
+  
+  .breadcrumbs {
+    font-size: var(--font-size-xs);
+  }
+  
+  .btn {
+    padding: 6px 10px;
+    font-size: var(--font-size-xs);
+  }
+}

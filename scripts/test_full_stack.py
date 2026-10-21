@@ -54,7 +54,7 @@ def main():
         with urllib.request.urlopen(req, timeout=5) as res:
             content = res.read().decode('utf-8')
             record("Frontend Server Running (Port 5173)", res.status == 200, f"HTTP {res.status}")
-            record("Frontend HTML Serves Root Element", '<div id="root">' in content, "Found #root div")
+            record("Frontend HTML Serves Application Shell", 'id="main-content"' in content, "Found #main-content")
     except Exception as exc:
         record("Frontend Server Running (Port 5173)", False, str(exc))
 

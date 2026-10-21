@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Local SOC Incident-Response Copilot - Windows-friendly alert triage workspace, evidence review, and LLM triage guidance." />
+  <meta name="theme-color" content="#111827" />
+  <title>SOC / LOCAL — Incident-Response Copilot</title>
+
+  <!-- Google Font: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Design System CSS (Modular architecture) -->
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+</head>
+<body>
+  <!-- Accessibility Skip Link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Mobile Drawer Backdrop Overlay -->
+  <div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
+
+  <!-- Application Shell -->
+  <div class="app-shell">
+    <!-- Dark Sidebar -->
+    <aside class="sidebar" id="app-sidebar" aria-label="Sidebar navigation"></aside>
+
+    <!-- Main Workspace Container -->
+    <div class="workspace">
+      <!-- Live System Status Ribbon -->
+      <header class="systembar" id="app-systembar" aria-label="System status bar"></header>
+
+      <!-- Main Navigation Header -->
+      <div class="app-header" id="app-header" role="banner"></div>
+
+      <!-- Main Content Route Container -->
+      <main id="main-content" class="main-content" role="main" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Pure Vanilla ES6 JavaScript Entry (Runs on both http:// and file://) -->
+  <script defer src="js/bundle.js"></script>
+</body>
+</html>
