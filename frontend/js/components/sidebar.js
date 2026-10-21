@@ -2,6 +2,7 @@
  * Sidebar Navigation Component
  */
 import { icons } from '../utils.js';
+import { openIngestModal } from './header.js';
 
 export function renderSidebar(container) {
   container.innerHTML = `
@@ -34,6 +35,11 @@ export function renderSidebar(container) {
         ${icons.settings}
         <span>Settings</span>
       </a>
+
+      <button type="button" class="nav-item nav-action" id="sidebar-ingest-btn" title="Ingest a webhook alert">
+        ${icons.plus}
+        <span>Ingest Webhook Alert</span>
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -71,12 +77,23 @@ export function renderSidebar(container) {
   }
 
   // Close drawer when link clicked on mobile
-  container.querySelectorAll('.nav-item').forEach(link => {
+  container.querySelectorAll('a.nav-item').forEach(link => {
     link.addEventListener('click', () => {
       if (window.innerWidth <= 768) {
         closeMobileDrawer();
       }
     });
+  });
+
+  // Global ingest action in the sidebar
+  container.addEventListener('click', (event) => {
+    const ingestBtn = event.target.closest?.('#sidebar-ingest-btn');
+    if (!ingestBtn) return;
+    event.preventDefault();
+    openIngestModal();
+    if (window.innerWidth <= 768) {
+      closeMobileDrawer();
+    }
   });
 }
 

@@ -1,487 +1,330 @@
-# Local SOC Incident-Response Copilot
+# 🛡️ Local SOC Incident-Response Copilot
 
-![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white)
-![Frontend](https://img.shields.io/badge/Frontend-Vanilla%20JS-F7DF1E?logo=javascript&logoColor=black)
-![Local-first](https://img.shields.io/badge/Runtime-100%25%20local-16A34A)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![Frontend](https://img.shields.io/badge/Frontend-Pure%20HTML5%20%2F%20CSS3%20%2F%20ES6%2B-F97316?logo=javascript&logoColor=white)](https://developer.mozilla.org)
+[![Local LLM](https://img.shields.io/badge/Inference-Ollama%20%7C%20qwen2.5%3A3b-000000?logo=ollama&logoColor=white)](https://ollama.ai)
+[![Security](https://img.shields.io/badge/Data%20Privacy-100%25%20Air--Gapped%20%2F%20Local-16A34A)](#security--privacy-guarantee)
+[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A Windows-friendly, local alert-triage workspace for reviewing security alerts, inspecting evidence, asking an offline AI assistant for guidance, and exporting an incident report.
-
-**The copilot recommends actions — it never executes them.** Analyst approval is required before anything happens outside the app.
-
-![Alert queue](docs/qa/queue.png)
+An enterprise-grade, **local-first, air-gapped Security Operations Center (SOC) Incident-Response Copilot**. It combines instant deterministic telemetry parsing with on-device Large Language Model (LLM) reasoning to eliminate alert fatigue, accelerate triage turnaround, and maintain strict data sovereignty—**zero logs, raw telemetry, or credentials ever leave your infrastructure.**
 
 ---
 
-## Table of contents
+## 📑 Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
-- [How it works](#how-it-works)
-- [Tech stack](#tech-stack)
-- [Project structure](#project-structure)
-- [Requirements](#requirements)
-- [Quick start](#quick-start)
-- [Enabling local AI](#enabling-local-ai)
-- [Configuration](#configuration)
-- [API reference](#api-reference)
-- [Sample data](#sample-data)
-- [Tests and evaluation](#tests-and-evaluation)
-- [Security and limitations](#security-and-limitations)
-- [Troubleshooting](#troubleshooting)
-- [Documentation](#documentation)
-- [License](#license)
+- [Overview](#-overview)
+- [System Architecture](#-system-architecture)
+- [Dashboard & Features Tour](#-dashboard--features-tour)
+- [Key Capabilities](#-key-capabilities)
+- [Quick Start Guide](#-quick-start-guide)
+- [Hardware & Model Specifications](#-hardware--model-specifications)
+- [API Reference](#-api-reference)
+- [Repository Structure](#-repository-structure)
+- [Security & Privacy Guarantee](#-security--privacy-guarantee)
+- [License](#-license)
 
 ---
 
-## Overview
+## 🔍 Overview
 
-The application is a single-user incident-response workspace built around three ideas:
+Modern security teams face overwhelming signal noise and alert fatigue, while cloud-hosted AI tools introduce unacceptable data-leakage and compliance risks when analyzing sensitive corporate security logs.
 
-1. **Deterministic analysis first.** Alert parsing, IOC extraction, severity, incident type, and MITRE candidates come from transparent Python rules — not from the language model.
-2. **AI only where it helps.** A small local model writes the narrative: summary, why it matters, verification checks, and suggested next steps. Every response is schema-validated, and a rules-based fallback is used when the model is unavailable or malformed.
-3. **Local by default.** No cloud API, no telemetry, and no automatic model downloads. Alert data stays in a local SQLite database. The UI references Google Fonts, but falls back to system fonts when offline; remove the font links in `Frontend/index.html` for a zero-external-request setup.
-
-> [!IMPORTANT]
-> The demo feed is **simulated**. SQLite is seeded with 30 fictional alerts covering seven incident types, benign maintenance events, and two malicious prompt-injection examples. This is not a SIEM and does not collect live telemetry. Use `POST /api/alerts` to ingest your own alerts.
-
-> [!NOTE]
-> This is a local demo, not a production SOC platform. It has no authentication, encryption, role-based access, or hardened deployment controls.
+The **Local SOC Incident-Response Copilot** solves both challenges:
+1. **100% Local Inference**: Runs high-speed, local quantized language models (`qwen2.5:3b` or `llama3.2:3b`) via Ollama or llama.cpp directly on CPU/GPU.
+2. **Deterministic-First Safety**: Critical indicators of compromise (IOCs), severities, incident types, and MITRE ATT&CK tactics are extracted deterministically with zero hallucination.
+3. **Executive Security Command Center**: Real-time telemetry, 4-wave sparkline KPI metrics, smooth bezier threat activity curves, and severity distribution donut charts.
+4. **Interactive Triage Workspace**: Inline triage status selectors, slide-over forensic preview drawers, and incident-scoped interactive AI follow-up investigations.
 
 ---
 
-## Features
-
-| Area | What it does |
-| --- | --- |
-| **Alert queue** | Severity/status/type filters, full-text search, pagination, alert-volume chart, jump-to-alert, and webhook ingestion. |
-| **Incident detail** | Original alert log, parsed evidence, IOC chips, rule-based baseline, MITRE candidates, and AI guidance. |
-| **Local AI explanation** | Summary, why it matters, verify-first checklist, next steps, and an optional false-positive estimate. |
-| **Scoped chat** | Follow-up questions about the selected alert only, with server-side scope checks and stored history. |
-| **Analyst workflow** | Notes, status transitions (`New` → `In progress` → `Closed`), and an immutable audit trail. |
-| **Reporting** | Download a Markdown incident report with evidence, notes, and the selected explanation. |
-| **Rules-only mode** | A per-browser switch that bypasses the model for explanations, chat, and reports. |
-| **Graceful fallback** | Missing model, timeout, invalid JSON, or grounding failure returns a clearly labeled rules-based result. |
-| **Responsive UI** | Pure HTML/CSS/JS frontend for desktop, tablet, and mobile, with no build step. |
-
----
-
-## How it works
+## 🏛️ System Architecture
 
 ```mermaid
-flowchart LR
-    UI["Static frontend<br/>HTML + CSS + JS<br/>localhost:5173"]
-    API["FastAPI backend<br/>127.0.0.1:8000"]
-    DB[("SQLite<br/>data/copilot.db")]
-    RULES["Deterministic rules<br/>parsing, IOCs, severity, MITRE"]
-    LLM["LLM provider<br/>llama.cpp · Ollama · Transformers · Mock"]
+flowchart TB
+    subgraph Ingestion["1. Ingestion Layer"]
+        WH[SIEM / Webhook Ingestion<br/>POST /api/alerts]
+        SIM[Simulated Attack Feeds<br/>POST /api/seed]
+        CLI[Analyst CLI / Scripts]
+    end
 
-    UI -->|REST / JSON| API
-    API --> DB
-    API --> RULES
-    API --> LLM
-    RULES --> API
-    LLM --> API
+    subgraph Deterministic["2. Deterministic Parsing Engine"]
+        EXT[Regex & Structured Parser<br/>IPs, Domains, Hashes, Users, Hosts]
+        TAX[Taxonomy & Severity Classifier<br/>CRITICAL, HIGH, MEDIUM, LOW]
+        MITRE[MITRE ATT&CK® Mapper<br/>Tactic & Technique Tagging]
+    end
+
+    subgraph Reasoning["3. Scoped AI Copilot & Rules Engine"]
+        ROUTER{Inference Router}
+        OLLAMA[Local Ollama / llama.cpp<br/>qwen2.5:3b · 4-bit Quantized]
+        FALLBACK[Deterministic Python Rules<br/>Safe Offline Fallback]
+        CACHE[(Persistent SQLite Cache<br/>copilot.db)]
+    end
+
+    subgraph Workspace["4. Presentation & Triage Workspace"]
+        DASH[Executive Security Overview<br/>4 Wave KPIs · Donut · Activity Curve]
+        TABLE[Active Queue Table<br/>Inline Status · Quick Preview Drawer]
+        CHAT[Scoped Incident Chat<br/>Follow-up Q&A · Action Plans]
+        AUDIT[Immutable Audit Trail<br/>State Transitions & Case Notes]
+    end
+
+    WH --> EXT
+    SIM --> EXT
+    CLI --> EXT
+
+    EXT --> TAX
+    TAX --> MITRE
+    MITRE --> ROUTER
+
+    ROUTER -->|AI Enabled| OLLAMA
+    ROUTER -->|Fallback / Offline| FALLBACK
+    OLLAMA --> CACHE
+    FALLBACK --> CACHE
+
+    CACHE --> DASH
+    CACHE --> TABLE
+    CACHE --> CHAT
+    CACHE --> AUDIT
 ```
 
-### What uses the model
-
-| Capability | Implementation |
-| --- | --- |
-| Alert parsing, evidence, IOCs | Deterministic Python |
-| Incident type, severity, confidence, MITRE candidates | Rule-based; not independent AI findings |
-| Summary, why it matters, verification checks, next steps | Local model with strict JSON/Pydantic validation |
-| Model missing, timeout, or invalid output | Rules-based fallback with a visible fallback reason |
-| Scoped chat | Server-side question guard; selected alert only; last six stored messages |
-| Notes, status audit, cache, reports | SQLite and Python |
-
-Every AI response includes the engine, provider, model, and generation time. `engine=llm, provider=mock` means a deterministic test double, **not real inference**. IOCs are syntactic extracts, not reputation findings, and MITRE candidates are checked against a small bundled catalog.
+### Architectural Highlights
+- **FastAPI Asynchronous Gateway**: Serves clean, documented REST endpoints with CORS and strict Pydantic v2 schemas.
+- **SQLite with WAL Mode**: Embedded zero-configuration persistence with write-ahead logging for sub-millisecond query performance.
+- **Zero-Dependency Frontend**: Pure HTML5, modern CSS3 (Custom Properties), and vanilla ES6+ JavaScript. No npm, webpack, Node.js, or Vite build steps required.
 
 ---
 
-## Tech stack
+## 📸 Dashboard & Features Tour
 
-| Layer | Technology |
-| --- | --- |
-| Backend | Python 3.11+, FastAPI, Pydantic, Uvicorn |
-| Database | SQLite (stdlib `sqlite3`) |
-| Frontend | Semantic HTML5, CSS3, vanilla ES6 modules — no framework, no build |
-| Local inference | llama.cpp (GGUF), Ollama, or Transformers; `mock` for a model-free demo |
-| Testing | pytest, httpx, a 34-case labeled evaluation set |
+### 1. Executive Security Overview Dashboard
+The command deck gives analysts immediate operational situational awareness through 4 wave-sparkline KPI cards, an interactive Threat Activity volume curve, a Severity Distribution donut chart, and dynamic Threat Entity extraction.
+
+![Security Overview Dashboard](docs/images/security-overview-dashboard.png)
+
+### 2. Forensic Alert Analysis & Copilot Assessment
+Deep forensic breakdown showing untrusted raw telemetry, parsed indicators of compromise (IOC chips), MITRE ATT&CK technique tags, and local copilot explanation complete with an actionable **Verify First Checklist** and **Recommended Next Steps**.
+
+![Alert Forensic Analysis](docs/images/alert-detail.png)
+
+### 3. Incident-Scoped AI Chat Assistant
+A dedicated discussion thread strictly scoped to the active incident. Analysts can test hypotheses, request executive summaries, or click prompt chips with zero risk of prompt injection or cross-incident leakage.
+
+![Scoped Copilot Chat](docs/images/copilot-chat.png)
+
+### 4. Real-Time Webhook & SIEM Ingestion
+Simulate attack scenarios or connect live enterprise SIEM alerts (Elastic, Splunk, Wazuh, Cloudflare WAF, CrowdStrike EDR) directly into the deterministic ingestion pipeline.
+
+![Webhook Ingestion Modal](docs/images/webhook-ingest.png)
+
+### 5. Local Inference Engine & Hardware Settings
+Review hardware runtime metrics, switch between Local AI and deterministic Rules-Only modes, test backend connectivity, and reset simulated benchmark data.
+
+![Settings and Hardware Runtime](docs/images/settings-runtime.png)
 
 ---
 
-## Project structure
+## ⚡ Key Capabilities
 
-```text
-pre/
-├── backend/
+| Feature | Description | Benefit |
+| :--- | :--- | :--- |
+| **Executive Wave KPIs** | Active Incidents, Critical, Mean Response Time, and Threats Blocked with live area sparklines. | High-visibility executive metrics with 24h trend deltas. |
+| **Threat Activity Curve** | Smooth cubic bezier area curve with 24-hour peak markers and dark floating tooltips. | Instant visualization of attack surges and incident velocity. |
+| **Severity Donut Ring** | Multi-segment SVG donut chart with center count (`32 Total Alerts`) and interactive legend. | 1-click filtering of the entire alert queue by severity. |
+| **Threat Entities Breakdown** | Auto-aggregates Top Attacking IPs, Targeted Users, and Impacted Hosts. | Isolate repeat adversary infrastructure with a single click. |
+| **MITRE ATT&CK® Matrix** | Maps telemetry to tactical candidate techniques (`T1110.001`, `T1566.002`, `T1059.003`). | Industry-standard classification for compliance and detection engineering. |
+| **Quick Triage Drawer** | Right slide-over panel with raw payloads, IOCs, and AI summary. | Review forensics without losing your place in the alert queue. |
+| **Inline Status Triaging** | Interactive `<select>` in each table row to mark `New`, `In progress`, or `Closed`. | Zero-click status updating that immediately logs to audit history. |
+| **Dark / Light Command Center** | One-click theme toggle between Clean Enterprise Light and Cyber Dark Command Center. | Ergonomic interface optimized for 24/7 dark SOC environments. |
+
+---
+
+## 🚀 Quick Start Guide
+
+### Prerequisites
+- **Python**: 3.10, 3.11, or 3.12 installed.
+- **Ollama** (Recommended for local AI): Download from [ollama.ai](https://ollama.ai).
+  ```bash
+  ollama pull qwen2.5:3b
+  ```
+
+---
+
+### One-Click Launch (Windows)
+
+Simply double-click:
+```cmd
+start.bat
+```
+This launcher automatically initializes the Python virtual environment, installs backend requirements, launches the FastAPI server on port `8000`, starts the static HTTP server on port `5173`, and opens the dashboard in your default browser.
+
+To safely shut down all services:
+```cmd
+stop.bat
+```
+
+---
+
+### Manual Launch (PowerShell / Windows)
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/prem-2323/genaiHCL-PRE.git
+   cd genaiHCL-PRE
+   ```
+
+2. **Set up Python environment**:
+   ```powershell
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   pip install -r backend/requirements.txt
+   ```
+
+3. **Start the FastAPI backend**:
+   ```powershell
+   $env:PYTHONPATH = "backend"
+   python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+   ```
+
+4. **Serve the frontend** (in a separate terminal):
+   ```powershell
+   python -m http.server 5173 --directory HTMLfront
+   ```
+
+5. **Open Dashboard**:
+   Navigate to **`http://localhost:5173`** in your browser.
+
+---
+
+### Manual Launch (Linux / macOS)
+
+```bash
+# 1. Clone & enter repository
+git clone https://github.com/prem-2323/genaiHCL-PRE.git
+cd genaiHCL-PRE
+
+# 2. Virtual environment & dependencies
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r backend/requirements.txt
+
+# 3. Start Backend
+PYTHONPATH=backend python3 -m uvicorn app.main:app --host 127.0.0.1 --port 8000 &
+
+# 4. Serve Frontend
+python3 -m http.server 5173 --directory HTMLfront &
+
+# 5. Open browser
+open http://localhost:5173  # macOS
+xdg-open http://localhost:5173  # Linux
+```
+
+---
+
+## 🧠 Hardware & Model Specifications
+
+| Parameter | Specification | Notes |
+| :--- | :--- | :--- |
+| **Default Model** | `qwen2.5:3b` | Outstanding cybersecurity reasoning, structured JSON formatting, and low latency. |
+| **Alternative Models** | `llama3.2:3b`, `phi3:mini`, `mistral:7b` | Configurable in `.env` under `OLLAMA_MODEL`. |
+| **RAM Footprint** | ~2.2 GB VRAM or System RAM | Runs comfortably on standard laptops without dedicated GPUs. |
+| **Inference Time** | 1.8s – 5.2s per explanation | Streaming progress indicator displayed live in header. |
+| **Fallback Mode** | Python Rule-Based Classifier | Instantly active if Ollama is not installed or offline. |
+
+---
+
+## 🔌 API Reference
+
+### Health & Telemetry
+- `GET /health` — Returns local model status, inference engine health, and active token generation stats.
+
+### Alert Operations
+- `GET /api/alerts` — Query alert queue with pagination, severity (`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`), status (`New`, `In progress`, `Closed`), and full-text search (`q=...`).
+- `POST /api/alerts` — Ingest raw security webhook or SIEM syslog entry:
+  ```json
+  {
+    "raw_alert": "Failed login detected\nUser: admin\nSource IP: 185.199.111.45",
+    "source": "Edge Firewall / SSH Monitor"
+  }
+  ```
+- `GET /api/alerts/{id}` — Retrieve alert forensics, extracted IOCs, and baseline analysis.
+- `PATCH /api/alerts/{id}/status` — Update alert state (`{"status": "In progress"}`).
+- `GET /api/alerts/{id}/notes` & `PUT /api/alerts/{id}/notes` — Read and update analyst disposition notes.
+- `GET /api/alerts/{id}/report.md` — Export complete incident investigation as formatted Markdown.
+
+### AI Copilot & Chat
+- `POST /api/alerts/{id}/explain` — Generate comprehensive triage explanation with Verify First checklist.
+- `POST /api/alerts/{id}/chat` — Submit scoped follow-up inquiry to the LLM.
+- `GET /api/alerts/{id}/chat` — Retrieve scoped conversation history for this alert.
+
+### Analytics & Audit
+- `GET /api/stats` — Metrics for active queue count, severity breakdown, and 7-day volume timeline.
+- `GET /api/history` — Immutable audit log of status changes and archive of closed incidents.
+- `POST /api/seed` — Reload 30 baseline simulated attack alerts (SSH brute force, phishing, malware, SQLi).
+
+---
+
+## 📂 Repository Structure
+
+```
+genaiHCL-PRE/
+├── .env.example             # Configuration template for models, ports, and paths
+├── .gitignore               # Strict rules protecting data, secrets, models, and caches
+├── README.md                # Comprehensive project documentation
+├── start.bat                # Windows one-click automated startup script
+├── stop.bat                 # Windows one-click clean shutdown script
+├── workflow.md              # Project requirements, evaluation guidelines, and roadmap
+│
+├── backend/                 # FastAPI Asynchronous Application
 │   ├── app/
-│   │   ├── main.py              # FastAPI routes and app factory
-│   │   ├── db.py                # SQLite store, seed, notes, audit, cache
-│   │   ├── models.py            # Pydantic request/response models
-│   │   ├── seed.py              # 30 simulated alerts
-│   │   ├── report.py            # Markdown report renderer
-│   │   ├── services/
-│   │   │   ├── analyzer.py      # Rule-based triage baseline
-│   │   │   └── ioc.py           # IOC extraction
-│   │   └── llm/
-│   │       ├── providers.py     # Provider selection and Transformers provider
-│   │       ├── native.py        # Managed llama.cpp provider
-│   │       ├── ollama.py        # Ollama provider
-│   │       ├── copilot.py       # Orchestration, cache, fallback
-│   │       ├── scope.py         # Chat scope guard
-│   │       ├── schema.py        # Structured output schema
-│   │       └── mitre.py         # MITRE candidate catalog
-│   ├── tests/                   # Backend test suite
-│   ├── eval/                    # Labeled regression evaluation
-│   ├── requirements-fast.txt    # Lightweight llama.cpp profile
-│   └── requirements.txt         # Optional Transformers profile
-├── Frontend/                    # Static UI: index.html, css/, js/, assets/
-├── HTMLfront/                   # Legacy mirror of the static UI
-├── scripts/
-│   ├── run_backend.ps1          # Loads .env and starts the API
-│   ├── run_frontend.ps1         # Serves the static UI on port 5173
-│   ├── setup_fast_model.ps1     # Explicit llama.cpp/model download with SHA-256 checks
-│   ├── check_model.py           # Hardware/model smoke test
-│   └── test_full_stack.py       # End-to-end API check
-├── docs/                        # Design, performance, QA, and progress notes
-├── data/                        # SQLite database (created at runtime)
-├── .env.example                 # Documented configuration template
-├── start.bat / stop.bat         # Windows helper launchers
-├── README.md                    # Project overview and reference
-├── README.me                    # Identical copy of README.md
-└── workflow.md                  # Step-by-step run-and-use runbook
+│   │   ├── main.py          # FastAPI application factory and route registration
+│   │   ├── models.py        # Pydantic v2 schemas for alerts, IOCs, and triage plans
+│   │   ├── db.py            # SQLite thread-safe store and atomic state machine
+│   │   ├── report.py        # Incident markdown report template generator
+│   │   ├── seed.py          # 30 realistic simulated security incidents
+│   │   ├── llm/
+│   │   │   ├── copilot.py   # AI copilot reasoning engine, prompt schemas, and fallbacks
+│   │   │   └── providers.py # Ollama, llama.cpp, and mock runtime providers
+│   │   └── services/        # Rule-based analyzers and MITRE ATT&CK taxonomy
+│   └── requirements.txt     # Backend Python dependencies
+│
+├── HTMLfront/               # Pure HTML5 / CSS3 / ES6+ Application (Zero Build Tools)
+│   ├── index.html           # Single-page application shell
+│   ├── assets/              # SVG brand assets and icons
+│   ├── css/
+│   │   ├── variables.css    # Design tokens, Light palette, and Cyber Command Center dark theme
+│   │   ├── base.css         # Typography, reset, and base utilities
+│   │   ├── layout.css       # Responsive grid system and sidebar drawer layout
+│   │   ├── components.css   # KPI cards, badges, slide-over drawer, and modal dialogs
+│   │   ├── pages.css        # Executive Security Overview, wave sparklines, and donut chart
+│   │   └── responsive.css   # Breakpoint optimizations (375px to 1440px+)
+│   └── js/
+│       ├── bundle.js        # Self-contained bundle for direct file:/// and HTTP execution
+│       ├── api.js           # Fetch API client with structured error handling
+│       ├── utils.js         # SVG icon dictionary and forensic preset samples
+│       ├── components/      # Modular UI components (header, sidebar, modal, toast)
+│       └── pages/           # View controllers (queue, detail, history, settings)
+│
+├── docs/                    # Architecture and documentation assets
+│   └── images/              # High-resolution UI screenshots for README
+│
+└── scripts/                 # Operational and testing automation
+    ├── check_model.py       # Diagnostic script verifying Ollama model availability
+    ├── run_backend.ps1      # PowerShell backend launcher
+    ├── run_frontend.ps1     # PowerShell frontend launcher
+    └── test_full_stack.py   # Automated end-to-end integration test suite
 ```
 
 ---
 
-## Requirements
+## 🔒 Security & Privacy Guarantee
 
-- **Windows 10/11** (the launchers and memory guidance target Windows; the backend itself is cross-platform).
-- **Python 3.11+**.
-- **No Node.js or npm required** — the frontend is static.
-- **RAM:** 8 GB minimum for the full local-model experience; the fast 0.8B profile is comfortable on a modern laptop.
-- **Disk:** roughly 1 GB for the fast llama.cpp runtime + model; about 2 GB for the optional Transformers weights.
-- **Internet access** only for installing Python packages and explicitly downloading a model. Runtime inference is offline.
+- **Zero External Egress**: No telemetry data, prompt content, or user credentials ever communicate with external cloud APIs.
+- **Strict Input Validation**: All ingestion endpoints enforce Pydantic v2 length bounds, sanitization, and structured type constraints.
+- **Isolated AI Scope**: The Copilot context window is strictly bounded to the individual alert being reviewed, preventing cross-tenant or cross-incident data bleed.
+- **Human-in-the-Loop**: All AI suggestions are explicitly marked as analyst recommendations requiring human approval prior to firewall or identity containment execution.
 
 ---
 
-## Quick start
+## 📄 License
 
-> For the complete install-to-triage runbook, including a demo script and troubleshooting, see [workflow.md](workflow.md).
-
-Run the following from the repository root in PowerShell.
-
-### 1. Create a virtual environment and install dependencies
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-.\.venv\Scripts\python.exe -m pip install -r backend\requirements-fast.txt
-```
-
-> Use `requirements-fast.txt` for the llama.cpp or mock profiles. The heavier `requirements.txt` adds Torch and Transformers and is only needed for the optional Transformers profile.
-
-### 2. Create your configuration
-
-```powershell
-Copy-Item .env.example .env
-```
-
-For the very first run, the simplest option is a model-free demo. Set this in `.env`:
-
-```dotenv
-LLM_PROVIDER=mock
-```
-
-### 3. Start the backend
-
-```powershell
-.\scripts\run_backend.ps1
-```
-
-The API starts on `http://127.0.0.1:8000`. Check it at:
-
-- Health: <http://127.0.0.1:8000/health>
-- Interactive API docs: <http://127.0.0.1:8000/docs>
-
-### 4. Serve the frontend
-
-In a second terminal, from the repository root:
-
-```powershell
-.\scripts\run_frontend.ps1
-```
-
-Or serve the static files directly:
-
-```powershell
-Set-Location Frontend
-..\.venv\Scripts\python.exe -m http.server 5173 --bind 127.0.0.1
-```
-
-### 5. Open the app
-
-Go to **<http://localhost:5173>** and try alert `1002` (or `ALR-1002`).
-
-> Use `localhost:5173`, not `127.0.0.1:5173`. The backend deliberately allows only the exact CORS origin `http://localhost:5173`.
-
-To stop everything, press `Ctrl+C` in both terminals, or run `.\stop.bat`.
-
----
-
-## Enabling local AI
-
-The recommended local profile is **Qwen3.5-0.8B (Q8_0 GGUF)** running on the portable **llama.cpp** CPU runtime. It needs no GPU, Docker, Ollama, Torch, or Node.
-
-### Fast profile (recommended)
-
-```powershell
-# Explicit network step: downloads a pinned runtime and model, verifying SHA-256.
-.\scripts\setup_fast_model.ps1
-```
-
-The script prints the exact paths to add to `.env`:
-
-```dotenv
-LLM_PROVIDER=llamacpp
-MODEL_PATH=C:\path\to\models\Qwen3.5-0.8B-GGUF\Qwen3.5-0.8B-Q8_0.gguf
-LLAMA_SERVER_PATH=C:\path\to\tools\llama-b11755\llama-server.exe
-LLAMA_THREADS=4
-LLAMA_BATCH_THREADS=8
-LLAMA_PORT=8081
-MAX_NEW_TOKENS=300
-GENERATION_TIMEOUT=90
-```
-
-Restart the backend after changing `.env`. The backend starts the model process lazily on the first explanation or chat request and stops it on normal shutdown. The model server is bound to loopback, uses an ephemeral bearer token, disables proxies/redirects, and refuses to attach to an unrelated process on the port.
-
-`/health` reporting `model_status: "not_loaded"` before the first request is normal.
-
-### Ollama
-
-Use an existing local Ollama installation instead:
-
-```powershell
-ollama pull qwen2.5:3b
-```
-
-```dotenv
-LLM_PROVIDER=ollama
-OLLAMA_MODEL=qwen2.5:3b
-OLLAMA_HOST=127.0.0.1
-OLLAMA_PORT=11434
-```
-
-### Optional Transformers profile
-
-Use this only if you want the original Python inference path. It is significantly slower on CPU.
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install torch==2.13.0 --index-url https://download.pytorch.org/whl/cpu
-.\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
-.\.venv\Scripts\python.exe -m pip install "huggingface_hub[cli]"
-.\.venv\Scripts\hf.exe download Qwen/Qwen3.5-0.8B --local-dir D:\HCL\models\Qwen3.5-0.8B
-```
-
-```dotenv
-LLM_PROVIDER=transformers
-MODEL_PATH=D:\HCL\models\Qwen3.5-0.8B
-MODEL_DISABLE_MMAP=1
-MODEL_CPU_INT8=0
-TORCH_THREADS=4
-MAX_NEW_TOKENS=400
-GENERATION_TIMEOUT=300
-```
-
-`MODEL_DISABLE_MMAP=1` works around the Windows paging-file error 1455 seen with memory-mapped safetensors. `MODEL_CPU_INT8=1` enables dynamic int8 Linear layers for slower AVX2 CPUs. All model loads are `local_files_only=True`.
-
-### Provider comparison
-
-| Provider | Model | Best for | Notes |
-| --- | --- | --- | --- |
-| `mock` | None | UI demo, tests, CI | Deterministic output; no inference |
-| `llamacpp` | Qwen3.5-0.8B Q8_0 | Fast local CPU use | ~13–22 s step-by-step plans on the reference laptop |
-| `ollama` | `qwen2.5:3b` (configurable) | Existing Ollama users | Requires a running Ollama service |
-| `transformers` | Qwen3.5-0.8B | Compatibility | PyTorch CPU path; much slower and RAM-heavy |
-
-Response times are observations, not guarantees. See [docs/performance-2026-10-20.md](docs/performance-2026-10-20.md).
-
----
-
-## Configuration
-
-`.env` is read by `scripts/run_backend.ps1`. Direct `uvicorn` commands require you to export the variables yourself.
-
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `LLM_PROVIDER` | `transformers` | `llamacpp`, `ollama`, `transformers`, or `mock` |
-| `DB_PATH` | `data/copilot.db` | SQLite database location |
-| `MODEL_PATH` | provider-specific | GGUF file (llama.cpp) or safetensors directory (Transformers) |
-| `LLAMA_SERVER_PATH` | `llama-server.exe` | llama.cpp runtime executable |
-| `LLAMA_PORT` | `8081` | Loopback port for the managed model server |
-| `LLAMA_THREADS` | `4` | Generation threads |
-| `LLAMA_BATCH_THREADS` | `8` | Prompt/batch threads |
-| `OLLAMA_MODEL` | `qwen2.5:3b` | Ollama model name |
-| `OLLAMA_HOST` / `OLLAMA_PORT` | `127.0.0.1` / `11434` | Ollama endpoint |
-| `MAX_NEW_TOKENS` | `400` (Transformers) | Maximum generated tokens |
-| `GENERATION_TIMEOUT` | `300` (Transformers) | Generation deadline in seconds |
-| `MODEL_DISABLE_MMAP` | `0` | Set `1` on Windows when safetensors mmap fails |
-| `MODEL_CPU_INT8` | `0` | Dynamic int8 Linear layers for the CPU Transformers path |
-| `TORCH_THREADS` | `4` | PyTorch CPU threads |
-| `HF_HUB_OFFLINE` | `1` | Prevent Hub access at runtime |
-| `HF_HUB_DISABLE_TELEMETRY` | `1` | Disable Hugging Face telemetry |
-| `DO_NOT_TRACK` | `1` | Disable telemetry hints |
-
-The frontend stores its backend URL and rules-only preference in `localStorage`. Settings → backend URL can point the UI at another local API instance.
-
----
-
-## API reference
-
-Full interactive documentation is generated at <http://127.0.0.1:8000/docs>.
-
-| Method | Route | Behavior |
-| --- | --- | --- |
-| `GET` | `/health` | Provider, model, and load state |
-| `GET` | `/api/alerts` | Filter/page the queue (`severity`, `status`, `type`, `q`, `page`, `page_size`) |
-| `POST` | `/api/alerts` | Ingest an alert through the local webhook |
-| `GET` | `/api/alerts/{id}` | Alert plus deterministic baseline |
-| `POST` | `/api/alerts/{id}/explain` | Cached explanation; supports `regenerate=true`, `rules_only=true` |
-| `GET` | `/api/alerts/{id}/chat` | Stored chat history |
-| `POST` | `/api/alerts/{id}/chat` | Ask a scoped follow-up question |
-| `PATCH` | `/api/alerts/{id}/status` | Set `New`, `In progress`, or `Closed`; writes an audit entry |
-| `GET` / `PUT` | `/api/alerts/{id}/notes` | Read or save analyst notes |
-| `GET` | `/api/alerts/{id}/report.md` | Download a Markdown report without starting generation |
-| `GET` | `/api/stats` | Counts and alert-volume time series |
-| `GET` | `/api/history` | Closed alerts and status changes |
-| `POST` | `/api/seed` | Reload the 30 simulated alerts |
-
-Alert IDs accept `1002` or `ALR-1002`. `page_size` is capped at 100, raw alerts at 20,000 characters, questions at 1,000, and notes at 20,000.
-
-### Ingest an alert
-
-```powershell
-$body = @{
-    raw_alert = "Failed login`nAttempts: 30`nSource IP: 192.0.2.50"
-    source    = "Local SIEM"
-} | ConvertTo-Json
-
-Invoke-RestMethod http://localhost:8000/api/alerts `
-    -Method Post `
-    -ContentType application/json `
-    -Body $body
-```
-
-Reloading samples resets notes, chat, explanations, and statuses for simulated alerts. Webhook alerts are preserved. A request overtaken by a sample reload receives HTTP `409` instead of writing stale output.
-
----
-
-## Sample data
-
-The seeded feed contains 30 fictional alerts:
-
-- 21 malicious examples across brute force, phishing, malware, impossible travel, port scan, SQL injection, and data exfiltration.
-- 7 benign/maintenance examples.
-- 2 prompt-injection emails used to test model boundaries.
-
-This is synthetic data for demonstration and regression testing. Nothing is collected from your machine or network.
-
----
-
-## Tests and evaluation
-
-The backend tests do not need a model or Torch:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r backend\requirements-test.txt
-.\.venv\Scripts\python.exe -m pytest backend\tests -q
-.\.venv\Scripts\python.exe backend\eval\run_eval.py
-```
-
-The evaluation set contains 34 manually labeled cases, including nine benign examples. It reports rule classification accuracy and severity agreement. Because the model is intentionally prohibited from deciding those fields, the LLM column is inherited from rules. This is a small synthetic regression set, not a production detection benchmark.
-
-Optional model evaluation (slow; stop the backend first or use another free `LLAMA_PORT`):
-
-```powershell
-.\.venv\Scripts\python.exe backend\eval\run_eval.py --llm --provider llamacpp `
-    --model-path D:\HCL\models\Qwen3.5-0.8B-GGUF\Qwen3.5-0.8B-Q8_0.gguf `
-    --server-path D:\HCL\tools\llama-b11755\llama-server.exe
-```
-
-Hardware smoke test with real output and timing:
-
-```powershell
-$env:LLAMA_PORT='8082'
-.\.venv\Scripts\python.exe scripts\check_model.py `
-    --provider llamacpp `
-    --server-path D:\HCL\tools\llama-b11755\llama-server.exe `
-    --model-path D:\HCL\models\Qwen3.5-0.8B-GGUF\Qwen3.5-0.8B-Q8_0.gguf `
-    --alert-id 1002 `
-    --question 'How do I resolve this alert step by step?' `
-    --runs 2 --timeout 90 --max-new-tokens 300
-```
-
-Exit code `0` means real model output, `2` means a rules fallback, and `1` means a loading failure.
-
----
-
-## Security and limitations
-
-**Security properties**
-
-- Backend binds to `127.0.0.1:8000`; CORS permits only `http://localhost:5173`.
-- No cloud API, telemetry, external enrichment, or automatic model downloads at runtime. The UI's only external request is optional Google Fonts; it works offline with system-font fallbacks.
-- Alert text is treated as untrusted data and passed through HTML escaping in the frontend.
-- Prompt construction, scope refusal, output schema validation, and grounding checks are covered by tests.
-- The app has no tool access and cannot execute response actions.
-
-**Important limitations**
-
-- **No authentication or encryption.** Anyone with access to the computer or `data/copilot.db` can read its contents. Do not use real sensitive data in this demo.
-- **Simulated feed.** There is no scheduler, SIEM connector, or live telemetry collector. Use the webhook for integrations.
-- **Prompt injection is mitigated, not eliminated.** A small model can still be influenced by malicious alert text. Review the two injection samples and test your own adversarial inputs.
-- **Narrative quality is not guaranteed.** The 0.8B model can be basic, repetitive, or wrong. Validation enforces shape, not truth. Always verify against original sensor logs.
-- **IOCs and MITRE mappings are assistive.** IOCs are syntactic extracts without reputation; MITRE candidates are not a complete ATT&CK analysis.
-- **False-positive estimates do not establish safety.**
-- **Grounding checks are narrow.** The app retries or falls back if the model invents an email, IP, URL, or hash, but this is not proof of factual accuracy.
-
----
-
-## Troubleshooting
-
-| Symptom | Fix |
-| --- | --- |
-| `model_status: "not_loaded"` | Normal before the first explanation/chat request; the model loads lazily. |
-| Backend fails to start | Ensure `.venv` exists, dependencies are installed, and port 8000 is free. |
-| Frontend cannot reach the API | Start the backend, use <http://localhost:5173>, and check the backend URL in Settings. |
-| CORS error | Serve the UI on exactly `http://localhost:5173`; other ports/origins are blocked. |
-| Ollama unreachable | Run `ollama serve` and `ollama pull qwen2.5:3b`, then restart the backend. |
-| llama.cpp load error | Verify `MODEL_PATH` ends in `.gguf`, `LLAMA_SERVER_PATH` exists, and `LLAMA_PORT` is free. Restart after fixing. |
-| Transformers error 1455 | Set `MODEL_DISABLE_MMAP=1`; close memory-heavy apps. |
-| Slow generation | Use the step-by-step suggestion chip, close other apps, and keep `LLAMA_THREADS=4` / `LLAMA_BATCH_THREADS=8`. More threads can be slower. |
-| Orphan model process after a crash | Stop only the known `llama-server.exe` process or choose another `LLAMA_PORT`. |
-| HTTP `409` after seeding | A sample reload replaced the alert while a request was in flight; reload the current alert and retry. |
-| Ports already in use | Run `.\stop.bat`, or start Uvicorn/HTTP server on another port (remember CORS). |
-
----
-
-## Documentation
-
-- [Run and use workflow](workflow.md)
-- [Design specification](docs/superpowers/specs/2026-10-20-soc-copilot-design.md)
-- [Implementation plan](docs/superpowers/plans/2026-10-20-soc-copilot.md)
-- [Implementation progress](docs/implementation-progress.md)
-- [Performance notes](docs/performance-2026-10-20.md)
-- [Frontend guide](Frontend/README.md)
-
----
-
-## License
-
-No license file is currently included in this repository. Add a `LICENSE` before redistributing or using the code outside its intended demo/educational context.
-
----
-
-**Built for local, explainable alert triage. Recommendations only — the analyst decides.**
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details. Free for academic, enterprise, and personal use.

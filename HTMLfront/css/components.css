@@ -661,3 +661,196 @@
 .toast-info svg {
   color: #60A5FA;
 }
+
+/* ==========================================================================
+   Theme Switcher Button
+   ========================================================================== */
+.theme-toggle-btn {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--primary-text);
+  border-radius: var(--radius-sm);
+  padding: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.theme-toggle-btn:hover {
+  background-color: var(--card-hover-bg);
+  border-color: var(--primary-orange);
+  color: var(--primary-orange);
+}
+
+/* ==========================================================================
+   KPI Progress Bars & Sub-badges
+   ========================================================================== */
+.stat-kpi-progress {
+  width: 100%;
+  height: 5px;
+  background-color: var(--border-color);
+  border-radius: var(--radius-full);
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.stat-kpi-bar {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--accent-blue), var(--cyan-accent));
+}
+
+.stat-kpi-bar.bar-orange {
+  background: linear-gradient(90deg, var(--primary-orange), var(--primary-orange-hover));
+}
+
+.stat-subtext {
+  font-size: 11px;
+  color: var(--muted-text);
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-chip {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* ==========================================================================
+   Quick Triage Slide-Over Drawer
+   ========================================================================== */
+.slide-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  z-index: var(--z-drawer);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-normal), visibility var(--transition-normal);
+  backdrop-filter: blur(2px);
+}
+
+.slide-drawer-backdrop.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.slide-drawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 520px;
+  max-width: 90vw;
+  background-color: var(--bg-primary);
+  border-left: 1px solid var(--border-color);
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.15);
+  z-index: calc(var(--z-drawer) + 1);
+  transform: translateX(100%);
+  transition: transform var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+}
+
+.slide-drawer-backdrop.active .slide-drawer {
+  transform: translateX(0);
+}
+
+.slide-drawer-header {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--bg-secondary);
+}
+
+.slide-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.slide-drawer-footer {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--bg-secondary);
+}
+
+/* ==========================================================================
+   Entity Breakdown Cards & Chips
+   ========================================================================== */
+.entity-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.entity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-fast);
+}
+
+.entity-row:hover {
+  background-color: var(--bg-tertiary);
+  border-color: var(--primary-orange);
+  cursor: pointer;
+}
+
+.entity-name {
+  font-family: var(--font-mono);
+  font-weight: var(--font-weight-medium);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--primary-text);
+}
+
+.entity-count-badge {
+  background-color: var(--light-blue);
+  color: var(--accent-blue);
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+}
+
+/* Inline Table Status Selector */
+.table-status-select {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 6px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--primary-text);
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.table-status-select:focus {
+  border-color: var(--primary-orange);
+  outline: none;
+}
+

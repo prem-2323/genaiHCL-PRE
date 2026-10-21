@@ -34,6 +34,16 @@ export function createHistoryPage() {
         </div>
       </div>
 
+      <div class="alert-box alert-info" style="margin-bottom: 18px;">
+        ${icons.info}
+        <div>
+          <strong>Audit entries are created by status changes.</strong>
+          New alerts — seeded or ingested — start as <strong>New</strong>, so this page stays empty until you move an
+          alert to <strong>In progress</strong> or <strong>Closed</strong>. Ingesting an alert adds it to the queue,
+          not to this audit trail. <a href="#/alerts/1002">Open alert 1002</a> to try it.
+        </div>
+      </div>
+
       <div id="history-error-container"></div>
       <div id="history-content-container">
         <div class="loading-container">
@@ -186,8 +196,10 @@ export function createHistoryPage() {
               </table>
             </div>
           ` : `
-            <div class="empty-state" style="padding: 24px;">
-              <p class="muted">No status changes recorded on this page.</p>
+            <div class="empty-state" style="padding: 28px 16px;">
+              <p class="muted" style="margin-bottom: 12px;">No status changes yet. Open an alert and change its Incident Status to create the first audit entry.</p>
+              <a href="#/alerts/1002" class="btn btn-sm btn-primary">Open alert 1002</a>
+              <a href="#/" class="btn btn-sm btn-ghost">Go to Alert Queue</a>
             </div>
           `}
         </div>
@@ -220,8 +232,9 @@ export function createHistoryPage() {
               </table>
             </div>
           ` : `
-            <div class="empty-state" style="padding: 24px;">
-              <p class="muted">No closed alerts currently in the archive.</p>
+            <div class="empty-state" style="padding: 28px 16px;">
+              <p class="muted" style="margin-bottom: 12px;">No closed alerts yet. Set an alert's status to Closed to archive it here.</p>
+              <a href="#/" class="btn btn-sm btn-primary">Go to Alert Queue</a>
             </div>
           `}
         </div>

@@ -48,11 +48,31 @@ export function renderHeader(systembarEl, headerEl) {
         <span>Ingest Alert</span>
       </button>
 
+      <button class="theme-toggle-btn" id="header-theme-toggle" title="Toggle Dark / Light Command Center" aria-label="Toggle theme">
+        ${icons.moon}
+      </button>
+
       <button class="btn btn-ghost btn-icon-only" id="global-refresh-btn" title="Refresh current view" aria-label="Refresh view">
         ${icons.refresh}
       </button>
     </div>
   `;
+
+  // Initialize Theme
+  const savedTheme = localStorage.getItem('soc-theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  const themeBtn = headerEl.querySelector('#header-theme-toggle');
+  if (themeBtn) {
+    themeBtn.innerHTML = savedTheme === 'dark' ? icons.sun : icons.moon;
+    themeBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('soc-theme', next);
+      themeBtn.innerHTML = next === 'dark' ? icons.sun : icons.moon;
+      showToast(`Switched to ${next === 'dark' ? 'Dark Command Center' : 'Clean Light'} theme`, 'info', 1800);
+    });
+  }
 
   // Bind Hamburger Toggle
   const mobileBtn = headerEl.querySelector('#mobile-drawer-toggle');

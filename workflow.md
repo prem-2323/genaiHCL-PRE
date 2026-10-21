@@ -598,7 +598,7 @@ The header polls `/health` every 5 seconds, so status changes appear without a m
 | **History & audit** | Sidebar → History & audit | Status-change log and closed-alert archive |
 | **Settings** | Sidebar → Settings | AI/rules toggle, runtime health, backend URL, sample reload |
 | **System ribbon** | Top bar | Provider/model/status, mode badge, last health poll |
-| **Global ingest** | Header → Ingest Alert | Paste a raw alert and create a webhook alert |
+| **Global ingest** | Sidebar → Ingest Webhook Alert, or header → Ingest Alert | Paste a raw alert and create a webhook alert from any page |
 
 ### Routes
 
@@ -787,6 +787,8 @@ Go to **History & audit**:
 - **Status changes audit trail** — previous status → new status, with timestamp, newest first.
 - **Closed alerts** — archive of `Closed` alerts with links back to detail.
 
+> **A fresh database shows 0 records here.** All 30 seeded alerts start as `New`, so there is nothing to audit until you change at least one status. Open an alert, set it to `In progress` or `Closed`, then return to this page. The empty state now links directly to alert `1002` to make this quick to test.
+
 Click an alert ID or row to reopen it.
 
 ### Step 10 — Repeat
@@ -800,7 +802,7 @@ For the next alert, return to **Alert queue**, clear filters if needed, and repe
 ### 9.1 Through the UI
 
 1. Open **Alert queue**.
-2. Click **Ingest Webhook Alert** (or **Ingest Alert** in the header).
+2. Click **Ingest Webhook Alert** in the left sidebar (or **Ingest Alert** in the header, or the same button on the queue page).
 3. Optionally choose a **Load Preset Attack Sample**.
 4. Set **Source Identifier** (default `Local SIEM Webhook`, max 150 characters).
 5. Paste the raw alert into **Raw Alert Log Body** (5–20,000 characters).
@@ -814,6 +816,8 @@ The backend:
 4. Stores the baseline and opens the detail page.
 
 Webhook alerts are **preserved** when you reload the simulated feed.
+
+> Ingesting an alert adds it to the **Alert queue**. It does **not** create an audit-history entry. The **History & audit** page only records status changes and closed alerts, so it stays empty until you change a status.
 
 ### 9.2 Through the API (PowerShell)
 
@@ -1318,7 +1322,7 @@ The app binds to loopback and has no login. Anyone with access to the computer o
 | Notes not saved | **Save notes** not clicked | Click Save; watch for the toast |
 | Report has no AI text | No explanation generated for that mode | Generate an explanation first, or accept rules-based report |
 | HTTP 409 after reloading samples | Sample reload raced an in-flight request | Reload the alert page and retry |
-| History page empty | No status changes yet | Change an alert status, then refresh |
+| History page empty | No status changes yet; seeded alerts all start as `New` | This is normal on a fresh database. Change an alert status, then refresh |
 | UI shows stale data | Browser cache/old tab | Hard refresh (`Ctrl+F5`) or click the global refresh button |
 
 ### Reading backend logs
