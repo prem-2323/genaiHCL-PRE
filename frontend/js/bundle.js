@@ -432,13 +432,16 @@
       });
     });
 
-    container.addEventListener('click', (event) => {
-      const ingestBtn = event.target.closest?.('#sidebar-ingest-btn');
-      if (!ingestBtn) return;
-      event.preventDefault();
-      openIngestModal();
-      if (window.innerWidth <= 768) closeMobileDrawer();
-    });
+    if (!container.dataset.sidebarIngestBound) {
+      container.dataset.sidebarIngestBound = 'true';
+      container.addEventListener('click', (event) => {
+        const ingestBtn = event.target.closest?.('#sidebar-ingest-btn');
+        if (!ingestBtn) return;
+        event.preventDefault();
+        openIngestModal();
+        if (window.innerWidth <= 768) closeMobileDrawer();
+      });
+    }
   }
 
   function updateSidebarActiveRoute(route) {

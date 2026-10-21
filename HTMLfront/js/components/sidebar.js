@@ -85,16 +85,19 @@ export function renderSidebar(container) {
     });
   });
 
-  // Global ingest action in the sidebar
-  container.addEventListener('click', (event) => {
-    const ingestBtn = event.target.closest?.('#sidebar-ingest-btn');
-    if (!ingestBtn) return;
-    event.preventDefault();
-    openIngestModal();
-    if (window.innerWidth <= 768) {
-      closeMobileDrawer();
-    }
-  });
+  // Global ingest action in the sidebar (delegated so it survives re-renders)
+  if (!container.dataset.sidebarIngestBound) {
+    container.dataset.sidebarIngestBound = 'true';
+    container.addEventListener('click', (event) => {
+      const ingestBtn = event.target.closest?.('#sidebar-ingest-btn');
+      if (!ingestBtn) return;
+      event.preventDefault();
+      openIngestModal();
+      if (window.innerWidth <= 768) {
+        closeMobileDrawer();
+      }
+    });
+  }
 }
 
 export function updateSidebarActiveRoute(route) {
