@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+dist/
+
+data/
+*.db
+*.db-shm
+*.db-wal
+.pytest_cache/
+.superpowers/
